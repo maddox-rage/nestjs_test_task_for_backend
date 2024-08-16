@@ -1,4 +1,9 @@
-import { Injectable } from '@nestjs/common';
+import {
+  HttpException,
+  HttpStatus,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { PrismaService } from 'src/prisma.service';
 import { UserDto } from './user.dto';
 import { User } from '@prisma/client';
@@ -21,7 +26,10 @@ export class UserService {
     if (existingUser) {
       const isMatch = await bcrypt.compare(dto.password, existingUser.password);
       if (!isMatch) {
-        throw new Error('Invalid email or password!');
+        throw new HttpException(
+          'Invalid email or password!',
+          HttpStatus.BAD_REQUEST,
+        );
       }
       const token = await this.authService.generateToken(existingUser);
       return { user: existingUser, ...token };
@@ -32,5 +40,40 @@ export class UserService {
     });
     const token = await this.authService.generateToken(newUser);
     return { user: newUser, ...token };
+  }
+
+  async getUserById(id: number): Promise<User | null> {
+    const user = await this.prisma.user.findUnique({
+      where: { id },
+    });
+    if (!user) {
+      throw new NotFoundException('User not Found');
+    }
+    return user;
+  }
+
+  async getAllUsers(): Promise<User[]> {
+    const users = await this.prisma.user.findMany();
+    if (!users || users.length === 0) {
+      throw new NotFoundException('Users not Found');
+    }
+    return users;
+  }
+
+  async updateUserEmail(id: number, newEmail: string): Promise<User> {
+    await this.getUserById(id);
+    return await this.prisma.user.update({
+      where: { id },
+      data: {
+        email: newEmail,
+      },
+    });
+  }
+
+  async deleteUser(id: number): Promise<User> {
+    await this.getUserById(id);
+    return await this.prisma.user.delete({
+      where: { id },
+    });
   }
 }
