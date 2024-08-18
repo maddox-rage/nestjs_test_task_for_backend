@@ -18,6 +18,7 @@ model User {
   email     String    @unique
   password  String
   columns   Column[]
+  comments  Comment[]
 }
 
 model Column {
@@ -41,4 +42,6 @@ model Comment {
   text      String
   cardId    Int
   card      Card      @relation(fields: [cardId], references: [id])
+  userId    Int
+  user      User      @relation(fields: [userId], references: [id])
 }

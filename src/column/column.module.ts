@@ -8,5 +8,6 @@ import { UserModule } from 'src/user/user.module';
   imports: [UserModule],
   controllers: [ColumnsController],
   providers: [ColumnsService, PrismaService],
+  exports: [ColumnsService],
 })
 export class ColumnsModule {}
