@@ -1,8 +1,9 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { CardService } from 'src/card/card.service';
 import { PrismaService } from 'src/prisma.service';
-import { CommentDto } from './comment.dto';
+import { CreateCommentDto } from './dto/createComment.dto';
 import { Comment } from '@prisma/client';
+import { UpdateCommentDto } from './dto/updateComment.dto';
 
 @Injectable()
 export class CommentService {
@@ -14,7 +15,7 @@ export class CommentService {
   async createComment(
     cardId: number,
     userId: number,
-    dto: CommentDto,
+    dto: CreateCommentDto,
   ): Promise<Comment> {
     return await this.prisma.comment.create({
       data: {
@@ -71,7 +72,7 @@ export class CommentService {
     columnId: number,
     cardId: number,
     userId: number,
-    newText: string,
+    newText: UpdateCommentDto,
   ): Promise<Comment> {
     await this.getCommentById(commentId, cardId, columnId, userId);
     return await this.prisma.comment.update({
@@ -80,7 +81,7 @@ export class CommentService {
         cardId,
       },
       data: {
-        text: newText,
+        text: newText.text,
       },
     });
   }

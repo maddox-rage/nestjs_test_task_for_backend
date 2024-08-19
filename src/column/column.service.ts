@@ -1,8 +1,9 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from 'src/prisma.service';
-import { ColumnDto } from './column.dto';
+import { CreateColumnDto } from './dto/createColumn.dto';
 import { Column } from '@prisma/client';
 import { UserService } from 'src/user/user.service';
+import { UpdateColumnDto } from './dto/updateColumn.dto';
 
 @Injectable()
 export class ColumnsService {
@@ -11,7 +12,7 @@ export class ColumnsService {
     private readonly userService: UserService,
   ) {}
 
-  async createColumn(userId: number, dto: ColumnDto): Promise<Column> {
+  async createColumn(userId: number, dto: CreateColumnDto): Promise<Column> {
     return await this.prisma.column.create({
       data: {
         title: dto.title,
@@ -54,13 +55,13 @@ export class ColumnsService {
   async updateColumn(
     columnId: number,
     userId: number,
-    newTitle: string,
+    newTitle: UpdateColumnDto,
   ): Promise<Column> {
     await this.getColumnById(columnId, userId);
     return await this.prisma.column.update({
       where: { id: columnId, userId },
       data: {
-        title: newTitle,
+        title: newTitle.title,
       },
     });
   }

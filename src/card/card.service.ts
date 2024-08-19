@@ -1,8 +1,9 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from 'src/prisma.service';
-import { CardDto } from './card.dto';
+import { CreateCardDto } from './dto/createCard.dto';
 import { Card } from '@prisma/client';
 import { ColumnsService } from 'src/column/column.service';
+import { UpdateCardDto } from './dto/updateCard.dto';
 
 @Injectable()
 export class CardService {
@@ -10,7 +11,7 @@ export class CardService {
     private readonly columnsService: ColumnsService,
     private readonly prisma: PrismaService,
   ) {}
-  async createCard(columnId: number, dto: CardDto): Promise<Card> {
+  async createCard(columnId: number, dto: CreateCardDto): Promise<Card> {
     return await this.prisma.card.create({
       data: {
         title: dto.title,
@@ -54,14 +55,14 @@ export class CardService {
   async updateCard(
     columnId: number,
     cardId: number,
-    newTitle: string,
+    newTitle: UpdateCardDto,
     userId: number,
   ): Promise<Card> {
     await this.getCardById(cardId, columnId, userId);
     return await this.prisma.card.update({
       where: { id: cardId, columnId },
       data: {
-        title: newTitle,
+        title: newTitle.title,
       },
     });
   }

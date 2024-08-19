@@ -5,10 +5,11 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { PrismaService } from 'src/prisma.service';
-import { UserDto } from './user.dto';
+import { CreateUserDto } from './dto/signUpOrSignIn.dto';
 import { User } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
 import { AuthService } from 'src/auth/auth.service';
+import { UpdateUserDto } from './dto/updateUser.dto';
 
 @Injectable()
 export class UserService {
@@ -17,7 +18,9 @@ export class UserService {
     private readonly authService: AuthService,
   ) {}
 
-  async signUpOrSignIn(dto: UserDto): Promise<{ user: User; token: string }> {
+  async signUpOrSignIn(
+    dto: CreateUserDto,
+  ): Promise<{ user: User; token: string }> {
     const existingUser = await this.prisma.user.findUnique({
       where: {
         email: dto.email,
@@ -60,12 +63,12 @@ export class UserService {
     return users;
   }
 
-  async updateUserEmail(id: number, newEmail: string): Promise<User> {
+  async updateUserEmail(id: number, newEmail: UpdateUserDto): Promise<User> {
     await this.getUserById(id);
     return await this.prisma.user.update({
       where: { id },
       data: {
-        email: newEmail,
+        email: newEmail.email,
       },
     });
   }
